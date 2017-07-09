@@ -1,0 +1,104 @@
+
+<div *ngIf="!name; else forminfo">
+  <form [formGroup]="rForm"> <!--(ngSubmit)="addPost(rForm.value)"-->
+    <div class="form-container"  style="background-color: grey">
+      <div class="row columns">
+
+        <h1>Billing - Import PPS</h1>
+
+<!--formControlName="selInvoiceSubType" -->
+        <label>Invoice SubType
+          <select name="selInvoiceSubType" [(ngModel)]="selectedInvoiceSubType.Id" [ngModelOptions]="{standalone: true}" (change)="OnSelectInvoiceSubType($event.target.value)"> 
+            <option value="-1">Select Invoice SubType</option>
+            <option *ngFor="let InvoiceSubType of invoiceSubTypeList" [value]="InvoiceSubType.Id">{{InvoiceSubType.Description}}</option>            
+          </select>
+        </label>
+
+        <label>Region
+          <select [(ngModel)]="selectedRegion.id" [ngModelOptions]="{standalone: true}" (change)="OnSelectRegion(selectedInvoiceSubType.Id, $event.target.value)">
+              <option value="-1">Select a Region</option>
+              <option *ngFor="let Region of regionList" [value]="Region.id">{{Region.description}}</option>       
+          </select>
+        </label>
+
+      <label>Claim Date
+          <select [(ngModel)]="selectedClaimDate.id" [ngModelOptions]="{standalone: true}" (change)="OnSelectClaimDate(selectedInvoiceSubType.Id, $event.target.value)">
+              <option value="-1">Select a Claim Date</option>
+              <option *ngFor="let ClaimDate of claimDateList" [value]="ClaimDate.id">{{ClaimDate.claimdate}}</option>
+          </select>
+        </label>
+
+        <label>Browse PPS File
+          <input #fileInput type="file" (change)="FileSelected($event.target.value)"/>
+        </label>
+
+        <input type="button" class="button" value="Import PPS File" (click)="UploadPPSFile(selectedInvoiceSubType.Id,selectedRegion.id,selectedClaimDate.id)" [disabled]="selectedInvoiceSubType.Id==-1 || selectedRegion.id==-1 || selectedClaimDate.id==-1 || !ppsfileSelected">
+
+        <p-dataTable [value]="ppsHeaderList">
+            <p-header><h5>List of PPS files from the Billing database</h5></p-header>
+            <!--<p-column field="id" header="Id"></p-column>-->
+            <p-column field="invoicesubtypeName" header="Invoice SubType"></p-column>
+            <p-column field="regionName" header="Region"></p-column>
+
+            <p-column field="claimDate" header="Claim Date">
+              <ng-template let-data="rowData" pTemplate="body">
+                <span>{{data.claimDate | date: 'dd/MM/yyyy'}}</span>
+              </ng-template>
+            </p-column>
+
+            <p-column field="statusName" header="Status"></p-column>
+            <p-column field="total" header="Total">
+              <ng-template let-data="rowData" pTemplate="body">
+                <span>${{data.total | number:'1.2-2'}}</span>
+              </ng-template>              
+            </p-column>
+            <p-column field="id" header="">
+              <ng-template let-data="rowData" pTemplate="body">
+                <input type="button" value="Details" (click)="details(data.id)">
+                <!--Only diplay the delete button for PPS header with status imported and draft imported-->
+                <input *ngIf="data.statusName=='Draft Imported' || data.statusName=='Imported'" type="button" value="Delete" (click)="DeletePPSFile(data.id)">
+              </ng-template>
+            </p-column>         
+            <!--   
+            <p-column field="id" header="">
+              <ng-template let-data="rowData" pTemplate="body">                
+                <input *ngIf="data.statusName=='Draft Imported' || data.statusName=='Imported'" type="button" value="Delete" (click)="DeletePPSFile(data.id)">
+              </ng-template>
+            </p-column>
+            -->
+        </p-dataTable>
+
+<!--
+        <label>Name
+          <input type="text" formControlName="name">
+        </label>
+        <div class="alert" *ngIf="!rForm.controls['name'].valid && rForm.controls['name'].touched">{{ titleAlert }}</div>
+
+
+        <label>Description
+          <textarea formControlName="description"></textarea>
+        </label>
+        <div class="alert" *ngIf="!rForm.controls['description'].valid && rForm.controls['description'].touched">You must specify a description that's between 30 and 500 characters.</div>
+-->
+
+
+<!--
+        <label for="validate">Minimum of 3 Characters</label>
+        <input type="checkbox" name="validate" formControlName="validate" value="1"> On
+
+        <input type="submit" class="button expanded" value="Submit Form" [disabled]="!rForm.valid">
+  -->        
+      </div>
+    </div>
+  </form>
+</div>
+
+<ng-template #forminfo>
+  <div class="form-container">
+    <div class="row columns">
+        <h1>{{ name }}</h1>
+
+        <p>{{ description }}</p>
+    </div>
+  </div>
+</ng-template>
